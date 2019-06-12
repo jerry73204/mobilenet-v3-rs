@@ -1,0 +1,9 @@
+[package]
+name = "mobilenet-v3-rs"
+version = "0.1.0"
+authors = ["jerry73204 <jerry73204@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+tch = { git = "https://github.com/LaurentMazare/tch-rs.git", branch = "master" }
+failure = "^0"
