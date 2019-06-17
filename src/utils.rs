@@ -93,7 +93,7 @@ pub fn conv_1x1_bn_layer<'a, P: Borrow<nn::Path<'a>>>(
 
 pub fn hswish<'a>() -> nn::Func<'a> {
     nn::func(|xs| {
-        (xs + 3.)
+        xs * (xs + 3.)
             .relu()
             .max1(&6_f64.into()) / 6.
     })
