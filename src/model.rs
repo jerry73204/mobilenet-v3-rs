@@ -47,14 +47,13 @@ pub enum SE {
 impl MobileNetV3 {
     pub fn new<'a, P: Borrow<nn::Path<'a>>>(
         path: P,
+        input_channel: u64,
         n_classes: u64,
-        input_size: u64,
         dropout: f64,
         width_mult: f64,
         mode: Mode
     ) -> Fallible<MobileNetV3>
     {
-        ensure!(input_size % 32 == 0, "input_size should be multiple of 32");
         let default_last_channel = 1280;
         let pathb = path.borrow();
 
@@ -114,25 +113,25 @@ impl MobileNetV3 {
 
         // Build mobile blocks
         let mut features = nn::seq_t();
-        let mut input_channel = 16;
+        let mut c_in = input_channel;
 
         for (ind, (k, exp, c, se, nl, s)) in mobile_setting.into_iter().enumerate()
         {
-            let output_channel = make_divisible(c as f64 * width_mult);
-            let exp_channel = make_divisible(exp as f64 * width_mult);
+            let c_out = make_divisible(c as f64 * width_mult);
+            let c_exp = make_divisible(exp as f64 * width_mult);
             let block = MobileBottleneck::new(
                 pathb / format!("bottleneck_{}", ind),
-                input_channel,
-                output_channel,
+                c_in,
+                c_out,
                 k,
                 s,
-                exp_channel,
+                c_exp,
                 se,
                 nl,
             )?;
 
             features = features.add(block);
-            input_channel = output_channel;
+            c_in = c_out;
         }
 
         // Build last several layers
@@ -143,7 +142,7 @@ impl MobileNetV3 {
 
         let conv_1x1_bn = utils::conv_1x1_bn_layer(
             pathb / "conv_1x1_bn",
-            input_channel,
+            c_in,
             last_conv_channel,
             NL::Hswish,
         );
@@ -188,6 +187,11 @@ impl MobileNetV3 {
 
 impl ModuleT for MobileNetV3 {
     fn forward_t(&self, xs: &Tensor, train: bool) -> Tensor {
+        let height = xs.size()[2];
+        let width = xs.size()[3];
+        assert!(height == width, "Input tensor should be square in size");
+        assert!(height % 32 == 0, "Input tensor height/width should be multiple of 32");
+
         xs.apply_t(&self.features, train)
             .mean2(&[2, 3], false)
             .apply_t(&self.classifier, train)
