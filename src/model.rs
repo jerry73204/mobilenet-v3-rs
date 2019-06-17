@@ -1,5 +1,5 @@
 use std::borrow::Borrow;
-use failure::Error;
+use failure::Fallible;
 use tch::{
     Tensor,
     nn::{
@@ -25,7 +25,7 @@ pub struct MobileBottleneck {
 }
 
 #[derive(Debug)]
-struct SEModule {
+pub struct SEModule {
     fc: Sequential,
 }
 
@@ -52,7 +52,7 @@ impl MobileNetV3 {
         dropout: f64,
         width_mult: f64,
         mode: Mode
-    ) -> Result<MobileNetV3, Error>
+    ) -> Fallible<MobileNetV3>
     {
         ensure!(input_size % 32 == 0, "input_size should be multiple of 32");
         let default_last_channel = 1280;
@@ -204,7 +204,7 @@ impl MobileBottleneck {
         exp_channel: u64,
         se: SE,
         nl: NL,
-    ) -> Result<MobileBottleneck, Error>
+    ) -> Fallible<MobileBottleneck>
     {
         ensure!(vec![1, 2].contains(&stride), "stride should be either 1 or 2");
         ensure!(vec![3, 5].contains(&kernel), "kernel should be either 3 or 5");

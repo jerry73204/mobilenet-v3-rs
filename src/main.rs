@@ -1,8 +1,8 @@
 extern crate tch;
 #[macro_use] extern crate failure;
 
-mod model;
-mod utils;
+pub mod model;
+pub mod utils;
 
 use tch::{Device, nn::VarStore};
 use failure::Error;
