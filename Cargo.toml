@@ -7,3 +7,6 @@ edition = "2018"
 [dependencies]
 tch = { git = "https://github.com/LaurentMazare/tch-rs.git", branch = "master" }
 failure = "^0"
+clap = {version = "^2", features = ["yaml"]}
+pretty_env_logger = "^0"
+log = "^0"

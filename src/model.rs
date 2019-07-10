@@ -54,6 +54,11 @@ impl MobileNetV3 {
         mode: Mode
     ) -> Fallible<MobileNetV3>
     {
+        ensure!(input_channel.is_positive(), "input_channel must be positive integer, but get {}", input_channel);
+        ensure!(n_classes.is_positive(), "n_classes must be positive integer, but get {}", n_classes);
+        ensure!(!dropout.is_sign_negative(), "dropout should be non-negative, but get {}", dropout);
+        ensure!(width_mult.is_sign_positive(), "width_mult should be positive, but get {}", width_mult);
+
         let default_last_channel = 1280;
         let pathb = path.borrow();
 

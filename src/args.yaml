@@ -1,0 +1,18 @@
+name: mobilenetv3-rs
+version: "0.1"
+author: jerry73204 <jerry73204@gmail.com>
+about: MobileNetV3 in Rust
+args:
+    - dataset:
+        long: dataset
+        value_name: DIR
+        help: MNIST dataset directory
+        takes_value: true
+    - batch_size:
+        long: batch-size
+        help: batch size
+        takes_value: true
+    - n_steps:
+        long: n-steps
+        help: Number of training steps
+        takes_value: true
