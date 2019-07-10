@@ -1,21 +1,16 @@
 use std::borrow::Borrow;
-use tch::{
-    nn::{
-        self,
-        SequentialT,
-    }
-};
+use tch::nn;
 use crate::model::NL;
 
 // Helper functions
 pub fn conv_layer<'a, P: Borrow<nn::Path<'a>>>(
     path: P,
-    input_channel: u64,
-    output_channel: u64,
-    kernel: u64,
-    stride: u64,
-    padding: u64,
-    groups: Option<u64>,
+    input_channel: i64,
+    output_channel: i64,
+    kernel: i64,
+    stride: i64,
+    padding: i64,
+    groups: Option<i64>,
 ) -> nn::Conv2D {
     let mut config = nn::ConvConfig {
         stride: stride as i64,
@@ -39,7 +34,7 @@ pub fn conv_layer<'a, P: Borrow<nn::Path<'a>>>(
 
 pub fn norm_layer<'a, P: Borrow<nn::Path<'a>>>(
     path: P,
-    channel: u64,
+    channel: i64,
 ) -> nn::BatchNorm
 {
     nn::batch_norm2d(
@@ -65,10 +60,10 @@ pub fn nlin_layer<'a>(nl: NL) -> nn::Func<'a> {
 
 pub fn conv_1x1_bn_layer<'a, P: Borrow<nn::Path<'a>>>(
     path: P,
-    input_channel: u64,
-    output_channel: u64,
+    input_channel: i64,
+    output_channel: i64,
     nl: NL,
-) -> SequentialT
+) -> nn::SequentialT
 {
     let pathb = path.borrow();
     let conv = conv_layer(
@@ -95,6 +90,6 @@ pub fn hswish<'a>() -> nn::Func<'a> {
     nn::func(|xs| {
         xs * (xs + 3.)
             .relu()
-            .max1(&6_f64.into()) / 6.
+            .clamp_max_(6.) / 6.
     })
 }

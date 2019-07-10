@@ -47,8 +47,8 @@ pub enum SE {
 impl MobileNetV3 {
     pub fn new<'a, P: Borrow<nn::Path<'a>>>(
         path: P,
-        input_channel: u64,
-        n_classes: u64,
+        input_channel: i64,
+        n_classes: i64,
         dropout: f64,
         width_mult: f64,
         mode: Mode
@@ -100,7 +100,7 @@ impl MobileNetV3 {
         let make_divisible = |val| {
             let divisible_by = 8.;
             let rounded = (val as f64 / divisible_by).ceil() * divisible_by;
-            rounded as u64
+            rounded as i64
         };
 
         // Compute last channel
@@ -190,7 +190,7 @@ impl ModuleT for MobileNetV3 {
         let height = xs.size()[2];
         let width = xs.size()[3];
         assert!(height == width, "Input tensor should be square in size");
-        assert!(height % 32 == 0, "Input tensor height/width should be multiple of 32");
+        // assert!(height % 32 == 0, "Input tensor height/width should be multiple of 32");
 
         xs.apply_t(&self.features, train)
             .mean2(&[2, 3], false)
@@ -201,11 +201,11 @@ impl ModuleT for MobileNetV3 {
 impl MobileBottleneck {
     pub fn new<'a, P: Borrow<nn::Path<'a>>>(
         path: P,
-        input_channel: u64,
-        output_channel: u64,
-        kernel: u64,
-        stride: u64,
-        exp_channel: u64,
+        input_channel: i64,
+        output_channel: i64,
+        kernel: i64,
+        stride: i64,
+        exp_channel: i64,
         se: SE,
         nl: NL,
     ) -> Fallible<MobileBottleneck>
@@ -306,8 +306,8 @@ impl ModuleT for MobileBottleneck {
 impl SEModule {
     fn new<'a, P: Borrow<nn::Path<'a>>>(
         path: P,
-        channel: u64,
-        reduction: Option<u64>,
+        channel: i64,
+        reduction: Option<i64>,
     ) -> SEModule
     {
         let pathb = path.borrow();
@@ -341,7 +341,7 @@ impl SEModule {
             .add_fn(|xs| xs.relu())
             .add(linear_layer_2)
             .add_fn(|xs| {      // HSigmoid function
-                (xs + 3.).relu().max1(&6_f64.into()) / 6.
+                (xs + 3.).relu().clamp_max_(6.) / 6.
             });
 
         SEModule {
