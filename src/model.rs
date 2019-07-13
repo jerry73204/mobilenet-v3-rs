@@ -361,9 +361,9 @@ impl Module for SEModule {
         let bsize = size[0];
         let channel = size[1];
         let y = xs.adaptive_avg_pool2d(&[1, 1])
-            .view(&[bsize, channel])
+            .view([bsize, channel])
             .apply(&self.fc)
-            .view(&[bsize, channel, 1, 1]);
+            .view([bsize, channel, 1, 1]);
         xs * y.expand_as(&xs)
     }
 }

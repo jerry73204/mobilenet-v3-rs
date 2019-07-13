@@ -82,7 +82,7 @@ fn main() -> Fallible<()> {
             let n_classes = 10;
             let preprocessor: PreprocessorType = Box::new(
                 move |images, labels| {
-                    let reshaped_images =  images.view(&[-1, input_channel, input_size, input_size]);
+                    let reshaped_images =  images.view([-1, input_channel, input_size, input_size]);
                     (reshaped_images, labels.shallow_clone())
                 }
             );
@@ -143,7 +143,7 @@ fn main() -> Fallible<()> {
         )
         .map(|(epoch, begin, end)| {
             let images = dataset.train_images.i(begin..end)
-                .view(&[end - begin, input_channel, input_size, input_size])
+                .view([end - begin, input_channel, input_size, input_size])
                 .to_device(Device::Cuda(0));
             let labels = dataset.train_labels.i(begin..end)
                 .to_device(Device::Cuda(0));
@@ -181,7 +181,7 @@ fn main() -> Fallible<()> {
         .map(|begin| (begin, (begin + batch_size).min(n_test_samples)))
         .map(|(begin, end)| {
             let images = dataset.test_images.i(begin..end)
-                .view(&[end - begin, input_channel, input_size, input_size])
+                .view([end - begin, input_channel, input_size, input_size])
                 .to_device(Device::Cuda(0));
             let labels = dataset.test_labels.i(begin..end)
                 .to_device(Device::Cuda(0));
